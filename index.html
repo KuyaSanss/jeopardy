@@ -218,9 +218,12 @@
   const GRAD = ["#ff4fe0","#d95cff","#a86bff","#7f7dff","#5f95ff","#4cb4ff","#45d8f0","#4cf0c0","#7cf59a","#b4f56e","#d8f25a"];
   const colorFor = (c, r) => GRAD[Math.min(GRAD.length - 1, c + r)];
 
-  // Status kotak hanya disimpan di memori: setiap reload papan kembali penuh.
-  // (Bersihkan sisa data dari versi lama yang sempat menyimpan ke localStorage.)
-  try { localStorage.removeItem("quiz-jeopardy-used-v1"); } catch (e) {}
+  // Kotak yang poinnya sudah hilang disimpan di browser, jadi tetap hilang setelah reload.
+  // Tombol RESET PAPAN mengosongkan catatan ini.
+  const KEY = "quiz-jeopardy-used-v2";
+  let used = new Set();
+  try { used = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify([...used])); } catch (e) {} };
 
   const board = document.getElementById("board");
   const modal = document.getElementById("modal");
@@ -236,7 +239,7 @@
     kat.soal.forEach((s, r) => {
       const id = c + "-" + r;
       const b = document.createElement("button");
-      b.className = "cell";
+      b.className = "cell" + (used.has(id) ? " used" : "");
       b.style.left = POS[c][r][0] + "%";
       b.style.top = POS[c][r][1] + "%";
       b.style.setProperty("--c", colorFor(c, r));
@@ -271,6 +274,7 @@
   // Soal terjawab atau tidak, poinnya tetap hilang dari papan.
   function close() {
     if (!current) return;
+    used.add(current); save();
     if (lastBtn) { lastBtn.classList.add("used"); lastBtn.blur(); }
     modal.classList.remove("open");
     current = null;
@@ -281,6 +285,7 @@
 
   document.getElementById("btnReset").addEventListener("click", () => {
     if (!confirm("Buka lagi semua kotak di papan?")) return;
+    used.clear(); save();
     board.querySelectorAll(".cell").forEach(b => b.classList.remove("used"));
   });
   const toggleFull = () => {
