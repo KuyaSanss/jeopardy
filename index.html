@@ -51,6 +51,13 @@
     background: #03000a;
     border-radius: 0.2cqw;
   }
+  /* Tidak terjawab: kotak ditutup dengan tanda silang merah samar */
+  .cell.used.miss::after {
+    content: "✕";
+    display: grid; place-items: center;
+    font: 700 2.2cqw/1 "Chakra Petch", sans-serif;
+    color: rgba(255, 92, 138, .55);
+  }
   .cell.used { cursor: default; }
   .cell.used:hover { background: transparent; box-shadow: none; transform: translate(-50%, -50%); }
 
@@ -167,8 +174,8 @@
     transition: background .15s, color .15s, box-shadow .15s;
   }
   .btn:hover, .btn:focus-visible { outline: none; background: var(--c); color: #0a0016; box-shadow: 0 0 16px var(--c); }
-  .btn.ghost { color: #a99bd0; border-color: #4a3a78; }
-  .btn.ghost:hover { background: #4a3a78; color: #fff; box-shadow: none; }
+  .btn.ok { --c: #5dffa8; }
+  .btn.no { --c: #ff5c8a; }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -198,8 +205,8 @@
       <pre id="mCode" hidden></pre>
     </div>
     <div class="foot">
-      <button class="btn ghost" id="btnBatal" title="Kembali tanpa menandai kotak">BATAL</button>
-      <button class="btn" id="btnSelesai" title="Tandai kotak sudah dipakai (Esc)">KEMBALI KE PAPAN</button>
+      <button class="btn no" id="btnTidak" title="Soal tidak terjawab, kotak ditutup dengan tanda silang">✕ TIDAK TERJAWAB</button>
+      <button class="btn ok" id="btnTerjawab" title="Soal terjawab, kotak ditutup">✓ TERJAWAB</button>
     </div>
   </div>
 </div>
@@ -268,24 +275,28 @@
       mCode.classList.toggle("big", s.kode.split("\n").length > 6);
     } else { mCode.hidden = true; }
     modal.classList.add("open");
-    document.getElementById("btnSelesai").focus();
+    document.getElementById("btnTerjawab").focus();
   }
 
-  function close(markUsed) {
+  // hasil: "terjawab" | "tidak" | null (null = tutup tanpa menandai, mis. salah klik)
+  function close(hasil) {
     if (!current) return;
-    if (markUsed && lastBtn) lastBtn.classList.add("used");
+    if (hasil && lastBtn) {
+      lastBtn.classList.add("used");
+      lastBtn.classList.toggle("miss", hasil === "tidak");
+    }
     modal.classList.remove("open");
     current = null;
     lastBtn && lastBtn.blur();
   }
 
-  document.getElementById("btnSelesai").addEventListener("click", () => close(true));
-  document.getElementById("btnBatal").addEventListener("click", () => close(false));
-  modal.addEventListener("click", e => { if (e.target === modal) close(true); });
+  document.getElementById("btnTerjawab").addEventListener("click", () => close("terjawab"));
+  document.getElementById("btnTidak").addEventListener("click", () => close("tidak"));
+  modal.addEventListener("click", e => { if (e.target === modal) close(null); });
 
   document.getElementById("btnReset").addEventListener("click", () => {
     if (!confirm("Buka lagi semua kotak di papan?")) return;
-    board.querySelectorAll(".cell").forEach(b => b.classList.remove("used"));
+    board.querySelectorAll(".cell").forEach(b => b.classList.remove("used", "miss"));
   });
   const toggleFull = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
@@ -295,7 +306,7 @@
 
   document.addEventListener("keydown", e => {
     if (modal.classList.contains("open")) {
-      if (e.key === "Escape") close(true);
+      if (e.key === "Escape") close(null);
     } else if (e.key === "f" || e.key === "F") toggleFull();
   });
 })();
