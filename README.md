@@ -6,6 +6,6 @@ Papan quiz Jeopardy statis (HTML/CSS/JS). Klik kotak poin untuk menampilkan soal
 - `soal.js` — daftar soal (tanpa jawaban)
 - `assets/board.jpg` — gambar papan
 
-Setelah soal dibacakan, klik **✓ TERJAWAB** (kotak dikosongkan) atau **✕ TIDAK TERJAWAB** (kotak diberi tanda silang). `Esc` menutup soal tanpa menandai kotak (untuk salah klik). `F` layar penuh. Setiap reload halaman, semua kotak poin muncul lagi. Tombol **RESET PAPAN** (pojok kanan bawah) juga bisa membuka lagi semua kotak tanpa reload.
+Setelah soal dibacakan, klik **KEMBALI KE PAPAN** (atau `Esc`). Terjawab atau tidak, poin soal itu hilang dari papan. `F` layar penuh. Setiap reload halaman, semua kotak poin muncul lagi. Tombol **RESET PAPAN** (pojok kanan bawah) juga bisa membuka lagi semua kotak tanpa reload.
 
 Deploy: import repo ini di Vercel (tanpa build, framework "Other").
