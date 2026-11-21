@@ -55,6 +55,21 @@
   .cell.used:hover { background: transparent; box-shadow: none; transform: translate(-50%, -50%); }
 
   /* ---------- Tombol kecil (pojok bawah) ---------- */
+  /* Logo SU di atas papan = tombol reset quiz */
+  .logo-reset {
+    position: absolute;
+    left: 51.46%; top: 5.47%;
+    width: 3.1%; height: 5.4%;
+    transform: translate(-50%, -50%);
+    border: 0; padding: 0; background: transparent;
+    border-radius: 0.6cqw;
+    cursor: pointer;
+    transition: box-shadow .18s ease;
+  }
+  .logo-reset:hover, .logo-reset:focus-visible {
+    outline: none;
+    box-shadow: 0 0 1cqw rgba(170, 120, 255, .8);
+  }
   .tools {
     position: fixed; right: 10px; bottom: 10px;
     display: flex; gap: 6px; opacity: 0; transition: opacity .2s;
@@ -175,7 +190,9 @@
 </head>
 <body>
 
-<main class="board" id="board" aria-label="Papan Quiz Jeopardy"></main>
+<main class="board" id="board" aria-label="Papan Quiz Jeopardy">
+  <button class="logo-reset" id="logoReset" title="Reset quiz" aria-label="Reset quiz: munculkan lagi semua poin"></button>
+</main>
 
 <div class="tools">
   <button id="btnFull" title="Layar penuh (F)">LAYAR PENUH</button>
@@ -283,11 +300,13 @@
   document.getElementById("btnKembali").addEventListener("click", close);
   modal.addEventListener("click", e => { if (e.target === modal) close(); });
 
-  document.getElementById("btnReset").addEventListener("click", () => {
-    if (!confirm("Buka lagi semua kotak di papan?")) return;
+  function resetQuiz() {
+    if (!confirm("Reset quiz? Semua poin akan muncul lagi.")) return;
     used.clear(); save();
     board.querySelectorAll(".cell").forEach(b => b.classList.remove("used"));
-  });
+  }
+  document.getElementById("btnReset").addEventListener("click", resetQuiz);
+  document.getElementById("logoReset").addEventListener("click", e => { e.currentTarget.blur(); resetQuiz(); });
   const toggleFull = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
     else document.exitFullscreen?.();
